@@ -1,0 +1,592 @@
+openapi: 3.0.3
+info:
+  title: TP Pharmacies
+  description: Ceci est une application de santé
+  version: 1.0.0
+servers:
+- url: /
+paths:
+  /pharmacie_garde:
+    get:
+      summary: centre de sante a cote de nous
+      operationId: pharmacie_garde
+      parameters:
+      - name: long
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: number
+      - name: lat
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: number
+      responses:
+        "200":
+          description: listes des hopitaux a 10km
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pharmacie'
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+  /recherche_medicament:
+    get:
+      summary: centre de sante a cote de nous
+      operationId: recherche_medicament
+      parameters:
+      - name: long
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: number
+      - name: lat
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: number
+      - name: medicament
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: listes des hopitaux a 10km
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pharmacie'
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+  /equivalent:
+    get:
+      summary: medicament equivalent dans les pharmacies proches de vous
+      operationId: medicament_equivalent
+      parameters:
+      - name: long
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: number
+      - name: lat
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: number
+      - name: medicament
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pharmacie'
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+  
+
+  /medicament_proposition:
+    get:
+      summary: medicament equivalent dans les pharmacies proches de vous
+      operationId: medicament_proposition
+      parameters:
+      - name: medicament
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Produit'
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+
+
+  /changer_disponibilite:
+    get:
+      summary: changer disponibilite d'un produit a partir de la pharmacie
+      operationId: change_dispo
+      parameters:
+        - name: pharmacie
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: medicament
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: disponibilite
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: changer disponibilite d'un medicament
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Produit'
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+
+
+  
+  /pharmacie_proche:
+    get:
+      summary: listes des pharmacies proche de vous
+      operationId: pharmacie_proche
+      parameters:
+      - name: long
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: number
+      - name: lat
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: number
+      responses:
+        "200":
+          description: listes des pharmacies proche de vous
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pharmacie'
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+  /hosto_proche:
+    get:
+      summary: les centres de santé proche de vous
+      operationId: hosto_proche
+      parameters:
+      - name: long
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: number
+      - name: lat
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: number
+      responses:
+        "200":
+          description: centre de santé proche de vous
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Centre'
+                x-content-type: application/json
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+  /hosto:
+    get:
+      summary: liste des centres de santeé
+      operationId: hosto_ls
+      responses:
+        "200":
+          description: listes des hopitaux a 10km
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Centre'
+                x-content-type: application/json
+              
+                
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+    post:
+      summary: ajouter un centre de sante
+      operationId: hosto_add
+      parameters:
+      - name: centre
+        in: query
+        description: The number of items to skip before starting to collect the result
+          set
+        required: true
+        style: form
+        explode: true
+        schema:
+          $ref: '#/components/schemas/Centre'
+      responses:
+        default:
+          description: Default error sample response
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+  /hosto/{hostoID}:
+    parameters:
+      - name: hostoID
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+    summary: update
+    put:
+      summary: modifier un centre de sante
+      operationId: hosto_edit
+      parameters:
+      - name: hosto
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          $ref: '#/components/schemas/Centre'
+      responses:
+        default:
+          description: Default error sample response
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+    delete:
+      summary: supprimer un centre de santé
+      description: supprimer un centre de sante
+      operationId: hosto_del
+      responses:
+        default:
+          description: Default error sample response
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+  /medicament:
+    get:
+      summary: liste des medicaments
+      operationId: medicament_ls
+      responses:
+        "200":
+          description: listes des medicaments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Produit'
+                x-content-type: application/json
+                
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+    post:
+      summary: ajouter un medicament
+      operationId: medicament_add
+      parameters:
+      - name: produit
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          $ref: '#/components/schemas/Produit'
+      responses:
+        default:
+          description: Default error sample response
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+  /medicament/{medicamentID}:
+    parameters:
+      - name: medicamentID
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+    summary: update
+    put:
+      summary: supprimer un medicament
+      operationId: medicament_edit
+      parameters:
+      - name: produit
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          $ref: '#/components/schemas/Produit'
+      responses:
+        default:
+          description: Default error sample response
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+    delete:
+      summary: supprimer medicament
+      operationId: medicament_del
+      
+      responses:
+        default:
+          description: Default error sample response
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+  /pharmacie:
+    get:
+      summary: listes des pharmacies
+      operationId: pharmacie_ls
+      responses:
+        "200":
+          description: listes des pharmacies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pharmacie'
+                x-content-type: application/json
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+    post:
+      summary: ajouter une pharmacie
+      operationId: pharmacie_add
+      parameters:
+      - name: pharmacie
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          $ref: '#/components/schemas/Pharmacie'
+      responses:
+        default:
+          description: Default error sample response
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+  /pharmacie/{pharmacieID}:
+    parameters:
+      - name: pharmacieID
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+    summary: update
+    put:
+      summary: modifier detail d'une pharmacie
+      operationId: pharmacie_update
+      parameters:
+      
+      - name: pharmacie
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          $ref: '#/components/schemas/Pharmacie'
+      responses:
+        default:
+          description: Default error sample response
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+    delete:
+      summary: supprimer une pharmacie
+      operationId: pharmacie_del
+     
+      responses:
+        default:
+          description: Default error sample response
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+  /medecin:
+    get:
+      summary: listes des medecins
+      operationId: medecin_ls
+      responses:
+        "200":
+          description: listes des medecins
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Medecin'
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+    post:
+      summary: ajouter médecin
+      operationId: medecin_add
+      parameters:
+      - name: medecin
+        in: query
+        description: The number of items to skip before starting to collect the result
+          set
+        required: true
+        style: form
+        explode: true
+        schema:
+          $ref: '#/components/schemas/Medecin'
+      responses:
+        default:
+          description: Default error sample response
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+  /medecin/{medecinID}:
+    parameters:
+      - name: medecinID
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+    summary: update
+    put:
+      summary: modifier details d'un medecin
+      operationId: medecin_edit
+      parameters:
+      
+      - name: medecin
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          $ref: '#/components/schemas/Medecin'
+      responses:
+        default:
+          description: Default error sample response
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+    delete:
+      summary: supprimer un medecin
+      operationId: medecin_del
+     
+      responses:
+        default:
+          description: Default error sample response
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+components:
+  schemas:
+    Pharmacie:
+      type: object
+      properties:
+        _id:
+          type: string
+        nom:
+          type: string
+        ifu:
+          type: string
+        tel:
+          type: integer
+        localisation:
+          $ref: '#/components/schemas/Pharmacie_localisation'
+       
+      example:
+        
+        localisation:
+          geometries: geometries
+          coordinates:
+          - 6
+          - 6
+          type: type
+        ifu: ifu
+        tel: 0
+        _id: _id
+        nom: nom
+    Produit:
+      type: object
+      properties:
+        id:
+          type: string
+        nom_prod:
+          type: string
+        dci:
+          type: string
+        dosage:
+          type: string
+        galenique:
+          type: string
+        fabricant:
+          type: string
+        conditionnement:
+          type: string
+    Centre:
+      type: object
+      properties:
+        id:
+          type: string
+        nom:
+          type: string
+        tel:
+          type: integer
+        localisation:
+          $ref: '#/components/schemas/Pharmacie_localisation'
+      example:
+        localisation:
+          geometries: geometries
+          coordinates:
+          - 6
+          - 6
+          type: type
+        tel: 0
+        id: id
+        nom: nom
+    Medecin:
+      type: object
+      properties:
+        id:
+          type: string
+        nom:
+          type: string
+        tel:
+          type: integer
+        specialite:
+          type: string
+      example:
+        specialite: specialite
+        tel: 0
+        id: id
+        nom: nom
+    Pharmacie_localisation:
+      type: object
+      properties:
+        type:
+          type: string
+        coordinates:
+          type: array
+          items:
+            type: integer
+        geometries:
+          type: string
+      example:
+        geometries: geometries
+        coordinates:
+        - 6
+        - 6
+        type: type
+    Pharmacie_produit:
+      type: object
+      properties:
+        id_produit:
+          type: integer
+        prix:
+          type: integer
+        disponible:
+          type: integer
+      example:
+        prix: 5
+        id_produit: 1
+        disponible: 5
+

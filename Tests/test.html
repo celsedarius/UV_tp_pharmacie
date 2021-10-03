@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {
+  font-family: Arial;
+  color: white;
+}
+
+.split {
+  height: 100%;
+  width: 50%;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  padding-top: 20px;
+}
+
+.left {
+  left: 0;
+  background-color: #111;
+}
+
+.right {
+  color: black;
+  right: 0;
+}
+
+.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.centered img {
+  width: 150px;
+  border-radius: 50%;
+}
+</style>
+<head>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="jquery.json-viewer.js"></script>
+  <script src="urls.js"></script>
+  <link href="jquery.json-viewer.css" type="text/css" rel="stylesheet">
+</head>
+
+</head>
+<body>
+<div class="split left">
+  <div class="centered">
+	<h1>Controles techniques du projet</h1>
+	<h3>Ceci est une très vilaine page html utilisée comme front-end pour tester votre API</h3>
+    <h2 style="display: inline-block;">Montrer données GPS</h2>
+	<button onclick="getLocation()">GPS</button>
+	
+	<h2 style="display: inline-block;">La liste des pharmacies</h2>
+	<button onclick="getPharmacies()">pharmacies</button>
+	
+	<h2 style="display: inline-block;">La liste des produits</h2>
+	<button onclick="getProduits()">produits</button>
+	
+	<h2 style="display: inline-block;">Les pharmacies proches</h2>
+	<button onclick="getPharmaProche()">cliquez ici</button>
+	
+	<h2 style="display: inline-block;">Les pharmacies proches ayant un produit</h2>
+	<button onclick="getPharmaProduitProche()">cliquez ici</button>
+	
+  </div>
+</div>
+
+<div class="split right">
+  <div class="centered">
+	<h2>Résultats</h2>
+	<p id="req"> </p>
+    <pre style="overflow-y: scroll; max-height: 500px" id="json-renderer"></pre>
+  </div>
+</div>
+
+<script>
+var req = document.getElementById("req");
+
+String.prototype.format = function() {
+    var formatted = this;
+    for( var arg in arguments ) {
+        formatted = formatted.replace("{" + arg + "}", arguments[arg]);
+    }
+    return formatted;
+}
+
+function getLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(showPosition);
+  } else { 
+	req.innerHTML = "Vos coordonnées actuelles";
+	$('#json-renderer').jsonViewer({
+		"error-message": "Geolocation is not supported by this browser."
+	}, {collapsed: true, withQuotes: true, withLinks: false});
+  }
+}
+
+function showPosition(position) {
+	$('#json-renderer').jsonViewer({
+		"long": position.coords.longitude,
+		"lat": position.coords.latitude
+	}, {collapsed: false, withQuotes: true, withLinks: false});
+}
+
+function getPharmacies() {
+	req.innerHTML = "Veuillez patienter... Requete: Get - {0}".format(url_pharmacies);
+	$('#json-renderer').jsonViewer({}, {collapsed: false, withQuotes: true, withLinks: false});
+	$.get(
+    url_pharmacies,
+	
+    function(data) {
+			req.innerHTML = "Requete Reussie: Get - {0}".format(url_pharmacies);
+			$('#json-renderer').jsonViewer(data, {collapsed: true, withQuotes: true, withLinks: false});
+    }
+	).fail(function(xhr, status, e) {
+		  req.innerHTML = "Erreur Requete: Get - {0}".format(url_pharmacies);
+			alert('Erreur');
+		  $('#json-renderer').jsonViewer({
+			"resultat" : "Erreur",
+			"details" : e
+			}, {collapsed: true, withQuotes: true, withLinks: false});
+			console.log(e);
+		});
+}
+
+function getProduits() {
+	var url = url_produits;
+	req.innerHTML = "Veuillez patienter... Requete: Get - {0}".format(url);
+	$('#json-renderer').jsonViewer({}, {collapsed: false, withQuotes: true, withLinks: false});
+	$.get(
+    url,
+	
+    function(data) {
+			req.innerHTML = "Requete Reussie: Get - {0}".format(url);
+			$('#json-renderer').jsonViewer(data, {collapsed: true, withQuotes: true, withLinks: false});
+    }
+	).fail(function(xhr, status, e) {
+		  req.innerHTML = "Erreur Requete: Get - {0}".format(url_pharmacies);
+			alert('Erreur');
+		  $('#json-renderer').jsonViewer({
+			"resultat" : "Erreur",
+			"details" : e
+			}, {collapsed: true, withQuotes: true, withLinks: false});
+			console.log(e);
+		});;
+}
+
+function getPharmaProche() {
+	let lon = 0;
+	let lat = 0;
+	if (window.confirm("Utiliser les coordonnées courantes ?"))
+	{
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(getPharmaProche_);
+		  } else { 
+			alert ("Geolocation is not supported by this browser.");
+		  }
+	}
+	else 
+	{
+		lat = prompt("Entrez la latitude");
+		lon = prompt("Entrez la longitude");
+		getPharmaProche_ ({"coords": {"longitude" : lon, "latitude" : lat}});
+	}
+}
+
+function getPharmaProche_(position) {
+	var url = url_pharma_proche.format(position.coords.longitude, position.coords.latitude);
+	req.innerHTML = "Veuillez patienter... Requete: Get - {0}".format(url);
+	$('#json-renderer').jsonViewer({}, {collapsed: false, withQuotes: true, withLinks: false});
+	$.get(
+    url,
+	
+    function(data) {
+			req.innerHTML = "Requete Reussie: Get - {0}".format(url);
+			$('#json-renderer').jsonViewer(data, {collapsed: true, withQuotes: true, withLinks: false});
+    },
+   'jsonp',
+	).fail(function(xhr, status, e) {
+		  req.innerHTML = "Erreur Requete: Get - {0}".format(url_pharmacies);
+			alert('Erreur');
+		  $('#json-renderer').jsonViewer({
+			"resultat" : "Erreur",
+			"details" : e
+			}, {collapsed: true, withQuotes: true, withLinks: false});
+			console.log(e);
+		});;
+}
+
+function getPharmaProduitProche() {
+	let lon = 0;
+	let lat = 0;
+	if (window.confirm("Utiliser les coordonnées courantes ?"))
+	{
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(getPharmaProduitProche_);
+		  } else { 
+			alert ("Geolocation is not supported by this browser.");
+		  }
+	}
+	else 
+	{
+		lat = prompt("Entrez la latitude");
+		lon = prompt("Entrez la longitude");
+		getPharmaProduitProche_ ({"coords": {"longitude" : lon, "latitude" : lat}});
+	}
+}
+
+function getPharmaProduitProche_(position) {
+	var medicament = prompt("Entrez le nom du produit");
+	var url = url_pharma_produit_proche.format(position.coords.longitude, position.coords.latitude, medicament);
+	req.innerHTML = "Veuillez patienter... Requete: Get - {0}".format(url);
+	$('#json-renderer').jsonViewer({}, {collapsed: false, withQuotes: true, withLinks: false});
+	$.get(
+    url,
+    function(data) {
+			req.innerHTML = "Requete Reussie: Get - {0}".format(url);
+			$('#json-renderer').jsonViewer(data, {collapsed: true, withQuotes: true, withLinks: false});
+    }
+	).fail(function(xhr, status, e) {
+		  req.innerHTML = "Erreur Requete: Get - {0}".format(url_pharmacies);
+			alert('Erreur');
+		  $('#json-renderer').jsonViewer({
+			"resultat" : "Erreur",
+			"details" : e.message
+			}, {collapsed: true, withQuotes: true, withLinks: false});
+			console.log(e);
+		});;
+};
+</script>
+
+</body>
+</html>
